@@ -1,6 +1,5 @@
 package collections
 
-import javax.swing.JToolBar.Separator
 import scala.collection.immutable.HashSet
 
 object task_collections {
