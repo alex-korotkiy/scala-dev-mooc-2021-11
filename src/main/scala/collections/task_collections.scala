@@ -1,5 +1,6 @@
 package collections
 
+import javax.swing.JToolBar.Separator
 import scala.collection.immutable.HashSet
 
 object task_collections {
@@ -37,9 +38,34 @@ object task_collections {
    *
    * HINT: Для всех возможных комбинаций чисел стоит использовать Map
    * **/
-  def numbersToNumericString(text: String): String = {
-    val numbers = Map("0" -> "zero", "1" -> "one", "2" -> "two", "3" -> "three", "4" -> "four", "5" -> "five", "6" -> "six", "7" -> "seven", "8" -> "eight", "9" -> "nine", "10" -> "ten", "11" -> "eleven") //etc
+  val numbers1_19 = Map(1 -> "one", 2 -> "two", 3 -> "three", 4 -> "four", 5 -> "five", 6 -> "six", 7 -> "seven", 8 -> "eight", 9 -> "nine", 10 -> "ten", 11 -> "eleven", 12 -> "twelve", 13 -> "thirteen", 14 -> "fourteen", 15 -> "fifteen", 16 -> "sixteen", 17 -> "seventeen", 18 -> "eighteen", 19 -> "nineteen")
+  val numbers20_90 = Map(20 -> "twenty", 30 -> "thirty", 40 -> "forty", 50 -> "fifty", 60 -> "sixty", 70 -> "seventy", 80 -> "eighty", 90 -> "ninety")
+  val numbers_tmb = Map(3 -> "thousand", 6-> "million", 9-> "billion")
 
+  def nonEmptyJoin(sep: String, strings: String*) = strings.filter(s=> s!="").mkString(sep)
+
+  def positiveInt2Words(n: Int): String = {
+    n match {
+      case 0 => ""
+      case n if n>=1 && n<20 => numbers1_19(n)
+      case n if n>=20 && n<100 => nonEmptyJoin(" ", numbers20_90((n/10)*10), positiveInt2Words(n%10))
+      case n if n>=100 && n<1000 => nonEmptyJoin(" ", positiveInt2Words(n/100), "hundred", positiveInt2Words(n%100))
+      case _ => {
+        val zeros_count = ((n.toString.length - 1)/3)*3
+        val d = math.pow(10, zeros_count).toInt
+        nonEmptyJoin(" ", positiveInt2Words(n/d), numbers_tmb(zeros_count), positiveInt2Words(n%d))
+      }
+    }
+  }
+
+  def numString2Words(numString: String): String = {
+    numString.toIntOption match {
+      case Some(n) => if (n==0) "zero" else positiveInt2Words(n)
+      case None => numString
+    }
+  }
+
+  def numbersToNumericString(text: String): String = {
     val collected = new StringBuilder
     var numberFound = ""
     for (i <- 0 until(text.length)){
@@ -47,13 +73,13 @@ object task_collections {
       sym.toIntOption match {
         case Some(_) => numberFound = numberFound + sym
         case None => {
-          collected.append(numbers.getOrElse(numberFound, numberFound))
+          collected.append(numString2Words(numberFound))
           collected.append(sym)
           numberFound = ""
         }
       }
     }
-    collected.append(numbers.getOrElse(numberFound, numberFound))
+    collected.append(numString2Words(numberFound))
     collected.toString
   }
 
